@@ -19,8 +19,10 @@ public class JwtTokenUtil {
     private String secretKey;
 
     public String generateAccessToken(User user) {
+        System.out.println("User role is  : "+user.getRoles().toString());
         return Jwts.builder()
                 .setSubject(user.getId() + "," + user.getEmail())
+                .claim("roles", user.getRoles().toString())
                 .setIssuer("CodeJava")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
@@ -51,7 +53,7 @@ public class JwtTokenUtil {
         return parseClaims(token).getSubject();
     }
 
-    private Claims parseClaims(String token) {
+    public Claims parseClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)

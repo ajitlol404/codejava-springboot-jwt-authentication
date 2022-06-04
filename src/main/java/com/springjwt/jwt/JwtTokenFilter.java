@@ -1,6 +1,8 @@
 package com.springjwt.jwt;
 
+import com.springjwt.user.Role;
 import com.springjwt.user.User;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,7 +46,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private void setauthenticationContext(String accessToken, HttpServletRequest request) {
         UserDetails userDetails = getUserDetails(accessToken);
 
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, null);
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
@@ -53,7 +55,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private UserDetails getUserDetails(String accessToken) {
         User user = new User();
-        String[] subjectArray = jwtTokenUtil.getSubject(accessToken).split(",");
+        Claims claims = jwtTokenUtil.parseClaims(accessToken);
+
+        String claimsRole = (String) claims.get("roles");
+
+        System.out.println("claimsRole" + claimsRole);
+
+        claimsRole = claimsRole.replace("[", "").replace("]", "");
+
+        String[] roleNames = claimsRole.split(",");
+
+        for (String roleName : roleNames) {
+            user.addRole(new Role(roleName));
+        }
+
+        String subject = (String) claims.get(Claims.SUBJECT);
+
+        String[] subjectArray = subject.split(",");
 
         user.setId(Integer.parseInt(subjectArray[0]));
         user.setEmail(subjectArray[1]);

@@ -1,5 +1,6 @@
 package com.springjwt;
 
+import com.springjwt.user.Role;
 import com.springjwt.user.User;
 import com.springjwt.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import org.springframework.test.annotation.Rollback;
 public class UserRepositoryTest {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Test
     public void testCreateUser() {
@@ -27,5 +28,24 @@ public class UserRepositoryTest {
 
         User savedUser = userRepository.save(newUser);
     }
+
+    @Test
+    public void testAssignRolesToUser() {
+        Integer userId = 3;
+        User user = userRepository.findById(userId).get();
+        user.addRole(new Role(2));
+        user.addRole(new Role(3));
+        User updatedUser = userRepository.save(user);
+
+    }
+
+    @Test
+    public void  testString()
+    {
+        String demo="[[ROLE_CUSTOMER], [ROLE_EDITOR]]";
+        String replace = demo.replace("[", "").replace("]", "");
+        System.out.println(replace);
+    }
+
 
 }
